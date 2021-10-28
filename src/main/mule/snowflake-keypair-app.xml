@@ -12,16 +12,15 @@ http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/jav
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="dcfb5aca-317c-4523-afa5-3a9451080da4" >
-		<db:generic-connection url="${snowflake.url}" driverClassName="net.snowflake.client.jdbc.SnowflakeDriver" user="${snowflake.user}" />
+		<db:generic-connection url="#[p('snowflake.url') ++ vars.privateKeyPath]" driverClassName="net.snowflake.client.jdbc.SnowflakeDriver" user="${snowflake.user}" />
 	</db:config>
 	<configuration-properties doc:name="Configuration properties" doc:id="9c9a082a-e0b2-4175-8c06-1cd242c2165f" file="config-dev.yaml" />
 	<flow name="snowflake-keypair-appFlow" doc:id="3d774e40-ba59-4438-b4c3-18d6a5b292d8" >
 		<http:listener doc:name="Listener" doc:id="10528f8c-87e3-44df-8546-91e820ff3345" config-ref="HTTP_Listener_config" path="/"/>
-		<logger level="INFO" doc:name="開始ログ" doc:id="527b2ec1-91ab-42ed-b231-2fa251a118ed" message="Start!"/>
-		<java:invoke-static doc:name="暗号ファイルコピー処理" doc:id="285bc1d5-9a5d-4b4f-9b16-035ad190c6b9" class="FileUtil" method="copyPrivateKeyFile(java.lang.String,java.lang.String,java.lang.String)">
+		<set-variable value='#[(server.tmpDir replace /[\\]/ with ("/") replace /\/$/ with ("")) ++ "/${snowflake.keyfilename}"]' doc:name="キーファイルパスの設定" doc:id="34303eb0-f064-45ab-8036-8176032e6d59" variableName="privateKeyPath"/>
+		<java:invoke-static doc:name="暗号ファイルコピー処理" doc:id="285bc1d5-9a5d-4b4f-9b16-035ad190c6b9" class="FileUtil" method="copyPrivateKeyFile(java.lang.String,java.lang.String)">
 			<java:args ><![CDATA[#[{
- "fileName": "rsa_key.p8",
- "tmpDir": server.tmpDir as String,
+ "copypath": vars.privateKeyPath,
  "content": readUrl("classpath://rsa_key.p8","text/plain") as String
 }]]]></java:args>
 		</java:invoke-static>

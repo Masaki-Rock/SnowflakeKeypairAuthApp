@@ -10,12 +10,11 @@ public class FileUtil {
 
 	private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
 	  
-	public static Boolean copyPrivateKeyFile(String fileName, String tmpDir, String content) {
+	public static Boolean copyPrivateKeyFile(String copypath, String content) {
 
-		String filepath = tmpDir + "/" + fileName;
-		File file = new File(filepath);
+		File file = new File(copypath);
 		logger.trace(content);
-		logger.info(filepath);
+		logger.info(copypath);
 
 		if (file.exists()) {
 			logger.info(">>> Exist Key File.");
